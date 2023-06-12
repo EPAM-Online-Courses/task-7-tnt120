@@ -1,8 +1,13 @@
 package efs.task.reflection;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ClassInspector {
 
@@ -18,7 +23,17 @@ public class ClassInspector {
   public static Collection<String> getAnnotatedFields(final Class<?> type,
       final Class<? extends Annotation> annotation) {
     //TODO usuń zawartość tej metody i umieść tutaj swoje rozwiązanie
-    return Collections.emptyList();
+
+    Set<String> annotatedFields = new HashSet<>();
+    Field[] fields = type.getDeclaredFields();
+
+    for (Field field : fields) {
+      if (field.isAnnotationPresent(annotation)) {
+        annotatedFields.add(field.getName());
+      }
+    }
+
+    return annotatedFields;
   }
 
   /**
@@ -32,7 +47,24 @@ public class ClassInspector {
    */
   public static Collection<String> getAllDeclaredMethods(final Class<?> type) {
     //TODO usuń zawartość tej metody i umieść tutaj swoje rozwiązanie
-    return Collections.emptyList();
+
+    Set<String> declaredMethods = new HashSet<>();
+    Method[] methods = type.getDeclaredMethods();
+    Class[] interfaces = type.getInterfaces();
+
+    for (Method method : methods) {
+      declaredMethods.add(method.getName());
+    }
+
+    for (Class interf : interfaces) {
+      Method[] interfaceMethods = interf.getDeclaredMethods();
+
+      for (Method method : interfaceMethods) {
+        declaredMethods.add(method.getName());
+      }
+    }
+
+    return declaredMethods;
   }
 
   /**
@@ -51,6 +83,16 @@ public class ClassInspector {
    */
   public static <T> T createInstance(final Class<T> type, final Object... args) throws Exception {
     //TODO usuń zawartość tej metody i umieść tutaj swoje rozwiązanie
-    return null;
+
+    Class[] parametrTypes = new Class[args.length];
+
+    for (int i = 0; i < args.length; i++) {
+      parametrTypes[i] = args[i].getClass();
+    }
+
+    Constructor<T> constructor = type.getDeclaredConstructor(parametrTypes);
+    constructor.setAccessible(true);
+
+    return constructor.newInstance(args);
   }
 }
